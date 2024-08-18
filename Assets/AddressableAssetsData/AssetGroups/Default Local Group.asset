@@ -18,12 +18,12 @@ MonoBehaviour:
   m_GUID: a1085b835bd1bd34ab33d151777e773b
   m_SerializeEntries:
   - m_GUID: a54b7ad866d3a9b47bbf3b53baa0acc4
-    m_Address: Assets/EcsGame/01 Addressables/Prototype_512x512_Brown.mat
+    m_Address: Prototype_512x512_Brown
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 663834164c6a04740aaa1b778249ce7e
-    m_Address: Assets/EcsGame/01 Addressables/Prototype_512x512_Blue1.mat
+    m_Address: Prototype_512x512_Blue1
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
