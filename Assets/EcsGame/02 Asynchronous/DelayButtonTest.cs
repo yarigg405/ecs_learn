@@ -2,52 +2,68 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 namespace EcsGame.AsyncAwaitLesson
 {
     internal sealed class DelayButtonTest : MonoBehaviour
     {
-        [SerializeField] private int delay = 1000;
-        CancellationTokenSource cancelTokenSource;
-        CancellationToken token;
+        [SerializeField] private Slider slider;
 
-        public void ClickOnButton()
+        private CancellationTokenSource _tokenSource = null;
+
+
+        public async void ClickOnButton()
         {
-            DelayMethod();
+            _tokenSource = new();
+            var token = _tokenSource.Token;
+
+            var progress = new Progress<float>(value =>
+            {
+                slider.value = value;
+            });
+
+            try
+            {
+                await Task.Run(() => DelayMethod(3f, progress, token));
+                Debug.Log("Completed");
+            }
+
+            catch (OperationCanceledException ex)
+            {
+                Debug.Log("CAnceled");
+            }
+
+            finally
+            {
+                _tokenSource.Dispose();
+            }
         }
+
 
         public void ClickOnCancel()
         {
-            cancelTokenSource.Cancel();
+            _tokenSource.Cancel();
         }
 
-        private async void DelayMethod()
+        private void DelayMethod(float time, IProgress<float> progress, CancellationToken token)
         {
-            cancelTokenSource = new CancellationTokenSource();
-            token = cancelTokenSource.Token;
-                        
-            try
+            var currentTime = 0f;
+            while (currentTime < time)
             {
-                Task task = Task.Delay(delay, token);
-                await task;
-                TargetMethod();
-            }
-            catch (AggregateException ae)
-            {
-                foreach (Exception e in ae.InnerExceptions)
+                var deltaTime = 0.01f;
+                currentTime += deltaTime;
+                Thread.Sleep(10);
+                progress.Report(currentTime / time);
+
+                if (token.IsCancellationRequested)
                 {
-                    if (e is TaskCanceledException)
-                        Debug.Log("Операция прервана");
-                    else
-                        Debug.Log(e.Message);
+                    progress.Report(0f);
+                    // return;
+                    token.ThrowIfCancellationRequested();
                 }
             }
-        }
-
-        private void TargetMethod()
-        {
-            Debug.Log("Clicked");
         }
     }
 }
